@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: LwyShaders_SnowEffect
+  m_Shader: {fileID: 4800000, guid: c1af3e1bc79b0f54d8ecadc2c5487a21, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _EffectTex:
+        m_Texture: {fileID: 2800000, guid: f29ec919cebfa6e43a890982a5332024, type: 3}
+        m_Scale: {x: 1.2, y: 1.6}
+        m_Offset: {x: 1.62, y: 0}
+    - _FlowMap:
+        m_Texture: {fileID: 2800000, guid: 3438d79aef73107458b6d4b6058ab8d0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskMap:
+        m_Texture: {fileID: 2800000, guid: 8b75b95c62a4f3942bcef01358035bbe, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0.5, y: 0.5}
+    m_Floats:
+    - _FlowMapIntensity: 1
+    - _FogDensity: 0.44
+    - _FogSpeed: 2.5
+    - _SnowSpeed: 2
+    - _WindSpeed: 1.65
+    m_Colors:
+    - _MaskController: {r: 0.25, g: 0.69, b: 0.6, a: 0}
