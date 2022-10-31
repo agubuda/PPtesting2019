@@ -59,12 +59,9 @@ class CustomLayerEffectPass : ScriptableRenderPass
 
             CommandBuffer cmd = CommandBufferPool.Get(profilerTag);
 
-
-
             cmd.Clear();
 
             context.ExecuteCommandBuffer(cmd);
-
 
             var draw1  = CreateDrawingSettings(ShaderTagId,ref renderingData,renderingData.cameraData.defaultOpaqueSortFlags);
             draw1.overrideMaterial = material;
@@ -73,11 +70,11 @@ class CustomLayerEffectPass : ScriptableRenderPass
             // cmd.SetGlobalTexture("_CameraColorTexture", cameraColorTargetIdent);
 
             // cmd.Blit(renderingData.cullResults, tempTexture.Identifier(), material, 0);
-            Blit(cmd, tempTexture.Identifier(), cameraColorTargetIdent);
+            // Blit(cmd, tempTexture.Identifier(), cameraColorTargetIdent);
             // cmd.Blit(tempTexture.Identifier(), cameraColorTargetIdent);
 
-            // context.ExecuteCommandBuffer(cmd);
-            // CommandBufferPool.Release(cmd);
+            context.ExecuteCommandBuffer(cmd);
+            CommandBufferPool.Release(cmd);
         }
 
         /// Cleanup any allocated resources that were created during the execution of this render pass.
