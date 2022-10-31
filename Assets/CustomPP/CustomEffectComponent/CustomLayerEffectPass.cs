@@ -38,7 +38,7 @@ class CustomLayerEffectPass : ScriptableRenderPass
         {
             cmd.GetTemporaryRT(tempTexture.id, cameraTextureDescriptor);
             ConfigureTarget(tempTexture.id);
-            ConfigureClear(clearFlag,Color.red);
+            ConfigureClear(ClearFlag.All,Color.red);
 
             // int tmpp = Shader.PropertyToID
             
