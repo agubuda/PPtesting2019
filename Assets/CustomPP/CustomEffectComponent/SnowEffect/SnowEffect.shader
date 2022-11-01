@@ -101,7 +101,7 @@ Shader "Hidden/Custom/SnowEffect"
                 input.uv2 = (input.uv2.xy * _MaskMap_ST.xy * 1 + _EffectTex_ST.w + (_EffectTex_ST.zw + frac(_Time.y / _SnowSpeed)));
 
                 float4 Mask = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, input.uv2);
-                float4 Mask2 = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, input.uv2);
+                float4 Mask2 = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, input.scrPos);
 
 
                 input.uv = (input.uv.xy * _EffectTex_ST.xy * (1 + Mask * 0.02) + float2(_EffectTex_ST.z + frac(_Time.y / _FogSpeed), _EffectTex_ST.w + frac(_Time.y / _FogSpeed)));
@@ -133,7 +133,7 @@ Shader "Hidden/Custom/SnowEffect"
                 color = color + _EffectColor * 0.8 + Mask.a * _FogDensity ;
 
 
-                return color_temp + half4(1,0,0,0) ;
+                return color_temp  ;
             }
             
             ENDHLSL

@@ -61,7 +61,7 @@ class CustomLayerEffectPass : ScriptableRenderPass
 
             cmd.Clear();
 
-            context.ExecuteCommandBuffer(cmd);
+            // context.ExecuteCommandBuffer(cmd);
 
             var draw1  = CreateDrawingSettings(ShaderTagId,ref renderingData,renderingData.cameraData.defaultOpaqueSortFlags);
             draw1.overrideMaterial = material;
