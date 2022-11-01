@@ -90,7 +90,7 @@ Shader "Hidden/Custom/SnowEffect"
 
                 // input.uv.x *= unity_DeltaTime.w;
                 float4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
-                float4 color_temp = SAMPLE_TEXTURE2D(_CameraColorTexture, sampler_CameraColorTexture, input.scrPos);
+                float4 color_temp = SAMPLE_TEXTURE2D(_CameraColorTexture, sampler_CameraColorTexture, input.uv);
 
                 float4 FlowMap = SAMPLE_TEXTURE2D(_FlowMap, sampler_FlowMap, input.scrPos);
                 // input.scrPos += FlowMap.xy * _Time.y *0.1;
@@ -133,7 +133,7 @@ Shader "Hidden/Custom/SnowEffect"
                 color = color + _EffectColor * 0.8 + Mask.a * _FogDensity ;
 
 
-                return  color_temp - half4(1,0,0,0) ;
+                return color_temp + half4(1,0,0,0) ;
             }
             
             ENDHLSL
