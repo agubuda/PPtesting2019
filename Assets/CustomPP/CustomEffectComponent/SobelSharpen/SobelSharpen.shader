@@ -102,6 +102,7 @@ Shader "Hidden/Custom/SobelSharpen"
                 // }
 
                 return sobel.r ;
+                // return half4(1,0,0,1) ;
             }
             
             ENDHLSL

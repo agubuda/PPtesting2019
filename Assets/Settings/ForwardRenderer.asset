@@ -54,8 +54,8 @@ MonoBehaviour:
   - {fileID: -3724709028436043221}
   - {fileID: 3961847997412772561}
   - {fileID: 2048917535208577005}
-  - {fileID: -6146608476943006133}
-  m_RendererFeatureMap: b376dc9b5106e02e2b1a617cdf2c4fccd18ae14bc34ffb36ed172d84a4376f1c4b46680628dcb2aa
+  - {fileID: 440758085996354993}
+  m_RendererFeatureMap: b376dc9b5106e02e2b1a617cdf2c4fccd18ae14bc34ffb36ed172d84a4376f1cb19db1db24e31d06
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   shaders:
     blitPS: {fileID: 4800000, guid: c17132b1f77d20942aa75f8429c0f8bc, type: 3}
@@ -78,6 +78,26 @@ MonoBehaviour:
     failOperation: 0
     zFailOperation: 0
   m_ShadowTransparentReceive: 1
+--- !u!114 &440758085996354993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc04bf86d87c20e468f440b95cf3ebdd, type: 3}
+  m_Name: NewCustomLayerEffectFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    renderPassEvent: 400
+    customMaterial: {fileID: 2100000, guid: 85c6934eb0888564084963e91d88d791, type: 2}
+    IsEnabled: 1
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 768
 --- !u!114 &2048917535208577005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -90,7 +110,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea2614578a8e3634cbe9e5e2b1f0a29e, type: 3}
   m_Name: Sharpen
   m_EditorClassIdentifier: 
-  m_Active: 1
+  m_Active: 0
   settings:
     renderPassEvent: 300
     customMaterial: {fileID: 2100000, guid: e76bc44e95959aa47aa6934fe47e980d, type: 2}

@@ -34,7 +34,9 @@ Shader "Hidden/Custom/SnowEffect"
             SAMPLER(sampler_FlowMap);
 
             TEXTURE2D_X_FLOAT(_CameraDepthAttachment);
+            TEXTURE2D(_CameraAttachment);
             SAMPLER(sampler_CameraDepthAttachment);
+            SAMPLER(sampler_CameraAttachment);
             // SAMPLER()
             
             float _Intensity, _SnowSpeed, _FogSpeed, _FlowMapIntensity;
@@ -88,6 +90,7 @@ Shader "Hidden/Custom/SnowEffect"
 
                 // input.uv.x *= unity_DeltaTime.w;
                 float4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv);
+                float4 color_temp = SAMPLE_TEXTURE2D(_CameraDepthAttachment, sampler_CameraDepthAttachment, input.scrPos);
 
                 float4 FlowMap = SAMPLE_TEXTURE2D(_FlowMap, sampler_FlowMap, input.scrPos);
                 // input.scrPos += FlowMap.xy * _Time.y *0.1;
@@ -130,7 +133,7 @@ Shader "Hidden/Custom/SnowEffect"
                 color = color + _EffectColor * 0.8 + Mask.a * _FogDensity ;
 
 
-                return color ;
+                return color_temp ;
             }
             
             ENDHLSL
