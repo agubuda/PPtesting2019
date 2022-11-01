@@ -11,6 +11,7 @@ Shader "Hidden/Custom/SnowEffect"
         _FogDensity ("Fog density", float) = 1
         _SnowSpeed ("Snow speed", float) = 5
         _FogSpeed ("Fog speed", float) = 3
+        _Color("Main Color", Color ) = (0.0, 0.0, 0.0, 0.0)
     }
     SubShader
     {
