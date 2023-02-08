@@ -1,0 +1,411 @@
+Shader "LwyShaders/LiquidEffect_01"
+{
+    Properties
+    {
+        // [Space(20)][Header(emissive map)]
+        // _EmissiveMap ("_EmissiveMap", 2D) = "white" { }
+        // [HDR]_EmissiveColor ("_EmissiveColor", color) = (1,0,0,1)
+
+        [Space(20)][Header(base settings)]
+        _BaseMap ("Texture", 2D) = "white" { }
+        _InsideColor ("_InsideColor", color) = (0, 0, 0, 1)
+        _OutsideColor ("_OutsideColor", color) = (0, 0, 0, 1)
+
+
+        // [Toggle(_ENABLENORMALMAP)] _ENABLENORMALMAP (" Enable normal map", float) = 0
+        _NormalMap ("Normal map", 2D) = "bump" { }
+        _NormalScale ("Normal scale", float) = 1
+
+        [Space(20)][Header(Rim light settings)]
+        [HDR]_RimColor ("RimColor", color) = (0.0, 0.0, 0.0, 0)
+        _FresnelPower ("Fresnel power", Range(0, 10)) = 3
+        
+        [Space(20)][Header(Wobble)]
+        _Min ("min", Range(0, 1)) = 1.0
+        _liquidEdge ("_liquidEdge", Range(0, 1)) = 0
+        _Cutoff ("_Cutoff", Range(0, 1)) = 0.5
+        _WobbleX ("_WobbleX", Range(-1, 1)) = 0.0
+        _WobbleZ ("_WobbleZ", Range(-1, 1)) = 0.0
+        _SpecPower ("Specular Power", float) = 10
+
+    }
+
+    SubShader
+    {
+        Tags { "Queue" = "Transparent" "RenderType" = "Transparent" "IgnoreProjector" = "True" "RenderPipeline" = "UniversalPipeline" }
+       
+        pass
+        {
+            Name "BottleEffectInside"
+            Tags { "LightMode" = "SRPDefaultUnlit" }
+            // ZWrite On
+            Cull front
+            ZTest on
+            Blend SrcAlpha OneMinusSrcAlpha
+            AlphaToMask On
+
+            HLSLPROGRAM
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #pragma target 4.5
+
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #pragma multi_compile_fog
+            #pragma multi_compile  _MAIN_LIGHT_SHADOWS
+            #pragma multi_compile  _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile  _SHADOWS_SOFT
+            #pragma shader_feature _ENABLENORMALMAP
+
+            CBUFFER_START(UnityPerMaterial)
+
+                float4 _BaseMap_ST;
+                float4 _MainTex_ST;
+                float _NormalScale;
+                float _OutLineWidth;
+                float4 _RimColor;
+                float _FresnelPower;
+                float _LightInfluence;
+                half4 _InsideColor, _OutsideColor;
+                float4 _NormalMap_ST;
+                float _OffsetMul, _Threshold, _Min, _liquidEdge, _Cutoff;
+                half _SpecPower;
+                float _WobbleX, _WobbleZ;
+
+            CBUFFER_END
+
+            TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+            TEXTURE2D(_MaskMap); SAMPLER(sampler_MaskMap);
+            TEXTURE2D(_NormalMap); SAMPLER(sampler_NormalMap);
+
+            TEXTURE2D_X_FLOAT(_CameraDepthTexture); SAMPLER(sampler_CameraDepthTexture);
+            
+            struct a2v
+            {
+                float4 positionOS : POSITION;
+                float3 normalOS : NORMAL;
+                float4 tangentOS : TANGENT;
+                float2 texcoord : TEXCOORD0;
+                float4 color : COLOR;
+                // UNITY_VERTEX_INPUT_INSTANCE_ID
+
+
+            };
+
+            struct v2f
+            {
+                float4 positionCS : SV_POSITION;
+                float4 positionOS : TEXCOORD8;
+                float3 positionWS : TEXCOORD0;
+                // float3 positionVS : TEXCOORD4;
+                float2 uv : TEXCOORD1;
+                // float fogCoord : TEXCOORD2;
+                float3 normalWS : TEXCOORD3;
+                // float3 normalVS : TEXCOORD5;
+                float4 positionNDC : TEXCOORD5;
+                float4 positionSS : TEXCOORD2;
+                float2 screenPos : TEXCOORD6;
+
+                float3 tangentWS : TEXCOORD4;
+                float3 bitangentWS : TEXCOORD7;
+                float3 axis :TEXCOORD9;
+
+                
+                // UNITY_VERTEX_OUTPUT_STEREO
+
+            };
+
+
+            v2f vert(a2v input)
+            {
+                v2f o;
+                // UNITY_SETUP_INSTANCE_ID(input);
+                // UNITY_TRANSFER_INSTANCE_ID(input, output);
+                // UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+                
+                VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
+
+                o.positionCS = TransformObjectToHClip(input.positionOS);
+                o.positionWS = TransformObjectToWorld(input.positionOS.xyz);
+
+                
+                o.normalWS = TransformObjectToWorldNormal(input.normalOS.xyz, true);
+                o.tangentWS = TransformObjectToWorldDir(input.tangentOS);
+                o.positionOS = mul(unity_ObjectToWorld, float4(0, 0, 0, 1));
+
+                o.axis = o.positionWS -o.positionOS;
+                // o.positionVS = TransformWorldToView(TransformObjectToWorld(input.positionOS.xyz));
+                // normalVS = TransformWorldToViewDir(normalWS, true);
+
+                // o.bitangentWS = normalize(cross(o.normalWS,o.tangentWS) * input.tangentOS.w);
+
+                //scr pos
+                o.positionSS = ComputeScreenPos(vertexInput.positionCS);
+                o.screenPos = o.positionSS.xy / o.positionSS.w;
+
+                // //recive shadow
+                // o.shadowCoord = TransformWorldToShadowCoord(o.positionWS);
+                
+                o.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
+                o.uv = TRANSFORM_TEX(input.texcoord, _NormalMap);
+                // o.vertexColor = input.color;
+                
+
+                return o;
+            }
+
+            half4 frag(v2f input, bool vf : SV_ISFRONTFACE) : SV_TARGET
+            {
+                clip(1 - vf );
+
+                float3 positionVS = TransformWorldToView(input.positionWS);
+                float3 normalVS = TransformWorldToViewDir(normalize(input.normalWS), true);
+
+                //initialize main light
+                Light MainLight = GetMainLight();
+                half3 LightDir = normalize(half3(MainLight.direction));
+                half3 LightColor = MainLight.color.rgb;
+
+
+                //Normal map
+
+                float4 normalMap = SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, input.uv.xy);
+                float3 bump = UnpackNormalScale(normalMap, _NormalScale);
+                input.normalWS = TransformTangentToWorld(bump, float3x3(input.bitangentWS, input.tangentWS, input.normalWS));
+                
+
+                // //EmissiveMap
+                // float4 EmissiveMap = SAMPLE_TEXTURE2D(_EmissiveMap, sampler_EmissiveMap, input.uv);
+                // EmissiveMap *= _EmissiveColor;
+
+                // //Mask map
+                // float4 MaskMap = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, input.uv);
+
+                //Blinn_phong
+                float3 viewDir = normalize(_WorldSpaceCameraPos.xyz - input.positionWS);
+                float3 HalfWay = normalize(viewDir + LightDir);
+                half blinnPhong =  (pow(saturate(max(0,dot(input.normalWS, HalfWay))), _SpecPower));
+
+
+                //Lambert & ramp
+
+                float Lambert = dot(LightDir, input.normalWS)  ;
+                float halfLambert =1 - (Lambert * 0.5 + 0.5); // * pow(abs(MaskMap.g), _AOPower)  ;
+                
+                float4 difusse = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
+
+                float Depth = SAMPLE_TEXTURE2D_X(_CameraDepthTexture, sampler_CameraDepthTexture, input.screenPos);
+
+                input.axis.y += input.axis.x * _WobbleX;
+                input.axis.y += input.axis.z * _WobbleZ;
+
+                float liquid = 1 - smoothstep(_Min, _Min + _liquidEdge, input.axis.y*0.5+0.5) ;
+
+                clip(liquid - _Cutoff);
+
+                _InsideColor.rgb = _InsideColor.rgb * halfLambert * MainLight.color.rgb;
+                
+                return half4(_InsideColor.rgb   , _InsideColor.a);
+
+            }
+
+            ENDHLSL
+        }
+        pass
+        {
+            Name "BottleEffectOutside"
+            Tags { "LightMode" = "UniversalForward" }
+            // ZWrite On
+            Cull back
+            ZTest on
+            Blend One OneMinusSrcAlpha
+            AlphaToMask On
+            // ZWrite On
+
+
+
+            HLSLPROGRAM
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #pragma target 4.5
+
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #pragma multi_compile_fog
+
+            #pragma multi_compile  _MAIN_LIGHT_SHADOWS
+            #pragma multi_compile  _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile  _SHADOWS_SOFT
+            #pragma shader_feature _ENABLENORMALMAP
+
+            CBUFFER_START(UnityPerMaterial)
+
+                float4 _BaseMap_ST;
+                float4 _MainTex_ST;
+                float _NormalScale;
+                float _OutLineWidth;
+                float4 _RimColor;
+                float _FresnelPower;
+                float _LightInfluence;
+                half4 _InsideColor, _OutsideColor;
+                float4 _NormalMap_ST;
+                float _OffsetMul, _Threshold, _Min, _liquidEdge, _Cutoff;
+
+                half _SpecPower;
+
+                float _WobbleX, _WobbleZ;
+
+            CBUFFER_END
+
+            TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+            TEXTURE2D(_MaskMap); SAMPLER(sampler_MaskMap);
+            TEXTURE2D(_NormalMap); SAMPLER(sampler_NormalMap);
+
+            TEXTURE2D_X_FLOAT(_CameraDepthTexture); SAMPLER(sampler_CameraDepthTexture);
+            
+            struct a2v
+            {
+                float4 positionOS : POSITION;
+                float3 normalOS : NORMAL;
+                float4 tangentOS : TANGENT;
+                float2 texcoord : TEXCOORD0;
+                float4 color : COLOR;
+                // UNITY_VERTEX_INPUT_INSTANCE_ID
+
+
+            };
+
+            struct v2f
+            {
+                float4 positionCS : SV_POSITION;
+                float4 positionOS : TEXCOORD8;
+                float3 positionWS : TEXCOORD0;
+                // float3 positionVS : TEXCOORD4;
+                float2 uv : TEXCOORD1;
+                // float fogCoord : TEXCOORD2;
+                float3 normalWS : TEXCOORD3;
+                // float3 normalVS : TEXCOORD5;
+                float4 positionNDC : TEXCOORD5;
+                float4 positionSS : TEXCOORD2;
+                float2 screenPos : TEXCOORD6;
+
+                float3 tangentWS : TEXCOORD4;
+                float3 bitangentWS : TEXCOORD7;
+                float3 axis :TEXCOORD9;
+
+                
+                // UNITY_VERTEX_OUTPUT_STEREO
+
+            };
+
+
+            v2f vert(a2v input)
+            {
+                v2f o;
+                // UNITY_SETUP_INSTANCE_ID(input);
+                // UNITY_TRANSFER_INSTANCE_ID(input, output);
+                // UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+                
+                VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
+
+                o.positionCS = TransformObjectToHClip(input.positionOS);
+                o.positionWS = TransformObjectToWorld(input.positionOS.xyz);
+
+                
+                o.normalWS = TransformObjectToWorldNormal(input.normalOS.xyz, true);
+                o.tangentWS = TransformObjectToWorldDir(input.tangentOS);
+                o.positionOS = mul(unity_ObjectToWorld, float4(0, 0, 0, 1));
+
+                o.axis = o.positionWS -o.positionOS;
+                // o.positionVS = TransformWorldToView(TransformObjectToWorld(input.positionOS.xyz));
+                // normalVS = TransformWorldToViewDir(normalWS, true);
+
+                // o.bitangentWS = normalize(cross(o.normalWS,o.tangentWS) * input.tangentOS.w);
+
+                //scr pos
+                o.positionSS = ComputeScreenPos(vertexInput.positionCS);
+                o.screenPos = o.positionSS.xy / o.positionSS.w;
+
+                // //recive shadow
+                // o.shadowCoord = TransformWorldToShadowCoord(o.positionWS);
+                
+                o.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
+                // o.vertexColor = input.color;
+                
+
+                return o;
+            }
+
+            half4 frag(v2f input, bool vf : SV_ISFRONTFACE) : SV_TARGET
+            {
+                // UNITY_SETUP_INSTANCE_ID(input);
+                // UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
+                float3 positionVS = TransformWorldToView(input.positionWS);
+                float3 normalVS = TransformWorldToViewDir(normalize(input.normalWS), true);
+
+                //initialize main light
+                Light MainLight = GetMainLight();
+                half3 LightDir = normalize(half3(MainLight.direction));
+                half3 LightColor = MainLight.color.rgb;
+
+                // //Normal map
+
+                // float4 normalMap = SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, input.uv);
+                // float3 bump = UnpackNormalScale(normalMap, _NormalScale);
+                // input.normalWS = TransformTangentToWorld(bump, float3x3(input.bitangentWS, input.tangentWS, input.normalWS));
+                
+
+                // //EmissiveMap
+                // float4 EmissiveMap = SAMPLE_TEXTURE2D(_EmissiveMap, sampler_EmissiveMap, input.uv);
+                // EmissiveMap *= _EmissiveColor;
+
+                // //Mask map
+                // float4 MaskMap = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, input.uv);
+
+                // //Blinn_phong
+                float3 viewDir = normalize(_WorldSpaceCameraPos.xyz - input.positionWS);
+                float3 HalfWay = normalize(viewDir + LightDir);
+                half blinnPhong = (pow(saturate(max(0,dot(input.normalWS, HalfWay))), _SpecPower));
+
+
+                //Lambert & ramp
+
+                float Lambert = dot(LightDir, input.normalWS)  ;
+                float halfLambert = (Lambert * 0.5 + 0.5); // * pow(abs(MaskMap.g), _AOPower)  ;
+
+                //fresnel
+                half3 fresnel = pow(1 - dot(normalize(input.normalWS), viewDir),_FresnelPower);
+                half3 fresnelColor = fresnel * _RimColor;
+                
+                float4 difusse = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
+
+                float Depth = SAMPLE_TEXTURE2D_X(_CameraDepthTexture, sampler_CameraDepthTexture, input.screenPos);
+
+                input.axis.y += input.axis.x * _WobbleX;
+                input.axis.y += input.axis.z * _WobbleZ;
+
+                float liquid = 1 - smoothstep(_Min, _Min + _liquidEdge, input.axis.y*0.5+0.5) ;
+
+                clip(liquid - _Cutoff);
+
+                _OutsideColor.rgb = _OutsideColor.rgb * halfLambert + fresnelColor * MainLight.color.rgb;
+                // _InsideColor.rgb = _InsideColor.rgb ;
+                
+                return half4(_OutsideColor.rgb, _OutsideColor.a);
+
+            }
+
+            ENDHLSL
+        }
+
+
+
+
+    }
+    FallBack "Hidden/Universal Render Pipeline/FallbackError"
+}

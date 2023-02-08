@@ -12,10 +12,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d33544fca2d78d46ae0b24cf7e8141b, type: 3}
   m_Name: NewCustomLayerEffectFeature
   m_EditorClassIdentifier: 
+  m_Active: 0
+  settings:
+    renderPassEvent: 500
+    customMaterial: {fileID: 2100000, guid: 996403eaaac3a654cbac7c8bce830ca0, type: 2}
+    IsEnabled: 1
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 512
+--- !u!114 &-3850202162162864718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea2614578a8e3634cbe9e5e2b1f0a29e, type: 3}
+  m_Name: NewCustomEffectFeature
+  m_EditorClassIdentifier: 
   m_Active: 1
   settings:
-    renderPassEvent: 400
-    customMaterial: {fileID: 2100000, guid: 85c6934eb0888564084963e91d88d791, type: 2}
+    renderPassEvent: 500
+    customMaterial: {fileID: 2100000, guid: 996403eaaac3a654cbac7c8bce830ca0, type: 2}
+    IsEnabled: 1
+--- !u!114 &-3437491176226926820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d33544fca2d78d46ae0b24cf7e8141b, type: 3}
+  m_Name: NewCustomLayerEffectFeature
+  m_EditorClassIdentifier: 
+  m_Active: 0
+  settings:
+    renderPassEvent: 500
+    customMaterial: {fileID: 2100000, guid: 996403eaaac3a654cbac7c8bce830ca0, type: 2}
     IsEnabled: 1
     layerMask:
       serializedVersion: 2
@@ -33,8 +70,12 @@ MonoBehaviour:
   m_Name: CustomForwardRendererData
   m_EditorClassIdentifier: 
   m_RendererFeatures:
+  - {fileID: 9132274253140877003}
+  - {fileID: 7984208180528439084}
+  - {fileID: -3850202162162864718}
   - {fileID: -5667167118021269508}
-  m_RendererFeatureMap: fc679137882d5ab1
+  - {fileID: -3437491176226926820}
+  m_RendererFeatureMap: cb5ee8610c5bbc7e2c5f2abd099bcd6eb26dd762885591cafc679137882d5ab11c4f74e2fc934bd0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   shaders:
     blitPS: {fileID: 4800000, guid: c17132b1f77d20942aa75f8429c0f8bc, type: 3}
@@ -57,3 +98,37 @@ MonoBehaviour:
     failOperation: 0
     zFailOperation: 0
   m_ShadowTransparentReceive: 1
+--- !u!114 &7984208180528439084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea2614578a8e3634cbe9e5e2b1f0a29e, type: 3}
+  m_Name: NewCustomEffectFeature
+  m_EditorClassIdentifier: 
+  m_Active: 0
+  settings:
+    renderPassEvent: 500
+    customMaterial: {fileID: 2100000, guid: e76bc44e95959aa47aa6934fe47e980d, type: 2}
+    IsEnabled: 1
+--- !u!114 &9132274253140877003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea2614578a8e3634cbe9e5e2b1f0a29e, type: 3}
+  m_Name: NewCustomEffectFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    renderPassEvent: 500
+    customMaterial: {fileID: 2100000, guid: 17c443ec2cfa6194cbcbabcba4b9eff8, type: 2}
+    IsEnabled: 1
